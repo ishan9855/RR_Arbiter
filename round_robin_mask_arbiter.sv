@@ -1,4 +1,3 @@
-
 module round_robin_mask_arbiter #( 
   parameter request_lines = 4)
   ( clk,
@@ -16,14 +15,14 @@ module round_robin_mask_arbiter #(
   logic [request_lines - 1 : 0] req_masked;
   logic [request_lines - 1 : 0] unmask_higher_pri_reqs;
   logic [request_lines - 1 : 0] mask_higher_pri_reqs;
-  logic [request_lines - 1 : 0] mask_higher_pri_reqs;
   logic [request_lines - 1 : 0] grant_masked;
-  logic [request_lines - 1 : 0] no_req_masked;
+  logic 						no_req_masked;
+  logic [request_lines - 1 : 0] grant_unmasked;
   
  
 //Simple priority arbitration for masked portion
   assign req_masked = req & pointer_req;
-  assign mask_higher_pri_reqs[request_lines - 1 : 1] = mask_higher_pri_reqs[request_lines - 2 : 0] | req_masked[request_lines - 2 : 0]
+  assign mask_higher_pri_reqs[request_lines - 1 : 1] = mask_higher_pri_reqs[request_lines - 2 : 0] | req_masked[request_lines - 2 : 0];
   assign mask_higher_pri_reqs[0] = 1'b0;
   assign grant_masked[request_lines - 1: 0] = req_masked[request_lines - 1: 0] & ~mask_higher_pri_reqs[request_lines - 1 : 0];
   
@@ -48,10 +47,13 @@ always @(posedge clk or negedge rst) begin
     end
     else begin
         if(|req) begin
-          pointer_req <= unmasked_higher_pri_reqs;
+          pointer_req <= unmask_higher_pri_reqs;
         end 
         else begin
           pointer_req <= pointer_req;
         end
       end
    end
+end
+  
+endmodule
